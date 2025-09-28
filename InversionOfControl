@@ -1,0 +1,128 @@
+Skip to content
+Chat history
+
+You said:
+what is inversion of control in spring boot in java please explain with simple real time example
+ChatGPT said:
+Good question 👍 Let’s break Inversion of Control (IoC) in Spring Boot (Java) into very simple terms with a real-time example.
+
+🔹 What is Inversion of Control (IoC)?
+Normally in Java, you create and control objects in your code using new.
+👉 With IoC, you don’t control object creation. Instead, Spring Framework takes the control and injects objects where needed.
+
+This is done using the IoC Container (like ApplicationContext in Spring).
+
+So:
+
+Without IoC → You create objects yourself.
+
+With IoC → Spring creates objects for you and wires dependencies.
+
+🔹 Real-Life Example
+Imagine you’re watching a movie at home:
+
+Without IoC: You need to buy a TV, DVD player, sound system, remote, and set them up yourself.
+
+With IoC: You go to a movie theater. The theater (like Spring IoC Container) already has the screen, sound, projector. You just sit and enjoy.
+
+👉 You don’t control setup — the theater controls everything. That’s IoC.
+
+🔹 Java Example Without IoC
+class Engine {
+    void start() {
+        System.out.println("Engine started...");
+    }
+}
+
+class Car {
+    private Engine engine;
+
+    // Car creates its own engine
+    public Car() {
+        this.engine = new Engine();
+    }
+
+    public void drive() {
+        engine.start();
+        System.out.println("Car is driving...");
+    }
+}
+
+public class WithoutIoC {
+    public static void main(String[] args) {
+        Car car = new Car(); // We create objects manually
+        car.drive();
+    }
+}
+Problem:
+Car is tightly coupled with Engine (creates it directly).
+
+If we want a PetrolEngine or DieselEngine, we must change the Car class.
+
+🔹 Java Example With IoC (Spring Boot Style)
+import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+// Dependency
+@Component
+class Engine {
+    void start() {
+        System.out.println("Engine started...");
+    }
+}
+
+// Dependent
+@Component
+class Car {
+    private Engine engine;
+
+    @Autowired  // Spring injects Engine here
+    public Car(Engine engine) {
+        this.engine = engine;
+    }
+
+    public void drive() {
+        engine.start();
+        System.out.println("Car is driving...");
+    }
+}
+
+@SpringBootApplication
+public class IoCExample implements CommandLineRunner {
+
+    private final Car car;
+
+    @Autowired
+    public IoCExample(Car car) {
+        this.car = car;
+    }
+
+    public static void main(String[] args) {
+        SpringApplication.run(IoCExample.class, args);
+    }
+
+    @Override
+    public void run(String... args) {
+        car.drive(); // Car and Engine are injected by Spring IoC container
+    }
+}
+🔹 What happened here?
+We didn’t create new Engine() or new Car() anywhere.
+
+Spring Boot’s IoC Container created objects (Beans) and injected them automatically.
+
+If tomorrow you replace Engine with DieselEngine, no changes in Car — just update the bean.
+
+✅ In simple words:
+IoC means you don’t create and manage objects yourself. Spring does it for you and wires them together.
+
+Do you want me to also show you the same example with multiple engine types (PetrolEngine, DieselEngine) to clearly see how IoC reduces coupling?
+
+
+
+No file chosenNo file chosen
+ChatGPT can make mistakes. Check important info. See Cookie Preferences.
+
