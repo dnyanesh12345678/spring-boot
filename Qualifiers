@@ -1,0 +1,103 @@
+Skip to content
+Chat history
+
+You said:
+what is Qualifiers in spring boot in java please explain with simple real time example.
+ChatGPT said:
+Got it 👍 Let’s go step by step.
+
+🔹 What is @Qualifier in Spring Boot?
+In Spring Boot, when you have multiple beans of the same type, Spring will get confused about which one to inject into a dependency.
+
+By default, Spring tries to match by type (@Autowired).
+
+If there are multiple beans of the same type, you get an error: “No unique bean found…”
+
+To fix this, we use @Qualifier to tell Spring which bean to inject.
+
+🔹 Simple Real-Time Example
+Imagine you’re building a payment system in an e-commerce application.
+You have two types of payment methods:
+
+Credit Card Payment
+
+UPI Payment
+
+Step 1: Create an interface
+public interface PaymentService {
+    void pay(double amount);
+}
+Step 2: Create multiple implementations
+import org.springframework.stereotype.Service;
+
+@Service("creditCardPayment")
+public class CreditCardPaymentService implements PaymentService {
+    @Override
+    public void pay(double amount) {
+        System.out.println("Paid " + amount + " using Credit Card.");
+    }
+}
+
+@Service("upiPayment")
+public class UpiPaymentService implements PaymentService {
+    @Override
+    public void pay(double amount) {
+        System.out.println("Paid " + amount + " using UPI.");
+    }
+}
+👉 Now we have two beans of type PaymentService.
+
+Step 3: Use @Qualifier in a controller
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+public class PaymentController {
+
+    private final PaymentService paymentService;
+
+    @Autowired
+    public PaymentController(@Qualifier("upiPayment") PaymentService paymentService) {
+        this.paymentService = paymentService;
+    }
+
+    @GetMapping("/pay")
+    public String makePayment() {
+        paymentService.pay(1000);
+        return "Payment Done!";
+    }
+}
+🔹 What happens here?
+Without @Qualifier, Spring doesn’t know whether to inject CreditCardPaymentService or UpiPaymentService.
+
+With @Qualifier("upiPayment"), we explicitly tell Spring to use the UPI service.
+
+👉 When you hit /pay, output will be:
+
+Paid 1000.0 using UPI.
+🔹 Real-Life Analogy
+Think of it like:
+
+You have two delivery boys (Zomato and Swiggy).
+
+When you order food, you must specify which service you want.
+
+If you don’t specify, the restaurant gets confused.
+
+@Qualifier is like saying: “Send my order using Swiggy.”
+
+✅ In short:
+
+@Autowired chooses by type.
+
+If multiple beans exist, use @Qualifier("beanName") to select which one.
+
+Do you want me to also show you how to switch beans dynamically using @Qualifier with @Value (for example, reading from application.properties to choose payment method)?
+
+
+
+No file chosenNo file chosen
+ChatGPT can make mistakes. Check important info. See Cookie Preferences.
+
