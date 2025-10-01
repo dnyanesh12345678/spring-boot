@@ -1,0 +1,194 @@
+Skip to content
+Chat history
+
+You said:
+What is used of primary in spring boot please explain with simple real time example 
+ChatGPT said:
+Great question 👍 Let’s go step by step and keep it very simple.
+
+💡 What is @Primary in Spring Boot?
+When you have multiple beans of the same type, and Spring gets confused about which one to inject, you can mark one bean as primary using @Primary.
+This tells Spring:
+👉 “If you are confused, pick me by default.”
+
+🔧 Simple Real-Life Example
+Imagine you have a Payment Service in your application.
+You support Credit Card and UPI payments. Both implement the same interface PaymentService.
+
+public interface PaymentService {
+    void pay(double amount);
+}
+CreditCard Service
+import org.springframework.stereotype.Service;
+
+@Service
+public class CreditCardPaymentService implements PaymentService {
+    @Override
+    public void pay(double amount) {
+        System.out.println("Paid " + amount + " using Credit Card.");
+    }
+}
+UPI Service (Primary)
+import org.springframework.context.annotation.Primary;
+import org.springframework.stereotype.Service;
+
+@Service
+@Primary   // 👈 This makes it default
+public class UpiPaymentService implements PaymentService {
+    @Override
+    public void pay(double amount) {
+        System.out.println("Paid " + amount + " using UPI.");
+    }
+}
+🛠 Using It in Controller
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+public class PaymentController {
+
+    @Autowired
+    private PaymentService paymentService;  // Spring gets confused here
+
+    @GetMapping("/pay")
+    public String makePayment() {
+        paymentService.pay(1000.0);
+        return "Payment Successful";
+    }
+}
+⚡ What happens?
+Without @Primary, Spring will throw error: "No qualifying bean of type PaymentService – more than one found"
+
+With @Primary on UpiPaymentService, Spring will pick it automatically.
+So when you hit /pay, it prints:
+
+Paid 1000.0 using UPI.
+🏪 Real-Time Analogy
+Think of it like a shop with two cash counters:
+
+Counter 1 = Credit Card
+
+Counter 2 = UPI
+
+When customers come in, they are confused about which counter to go.
+The shopkeeper says 👉 "By default, go to the UPI counter."
+That’s exactly what @Primary does.
+
+✅ Summary:
+
+@Primary is used when multiple beans exist for the same type.
+
+It marks one bean as the default bean to inject.
+
+Useful when you don’t want to use @Qualifier everywhere.
+
+Would you like me to also show you the difference between @Primary and @Qualifier with example?
+
+You said:
+Yes
+ChatGPT said:
+Perfect 👍 Let’s compare @Primary vs @Qualifier in Spring Boot with a real-life example.
+
+💡 @Primary vs @Qualifier
+@Primary → Sets a default bean when multiple beans are available.
+
+@Qualifier → Lets you choose exactly which bean you want to inject.
+
+🔧 Example Setup
+1. PaymentService Interface
+public interface PaymentService {
+    void pay(double amount);
+}
+2. Two Implementations
+Credit Card Payment
+
+import org.springframework.stereotype.Service;
+
+@Service
+public class CreditCardPaymentService implements PaymentService {
+    @Override
+    public void pay(double amount) {
+        System.out.println("Paid " + amount + " using Credit Card.");
+    }
+}
+UPI Payment (Marked as Primary)
+
+import org.springframework.context.annotation.Primary;
+import org.springframework.stereotype.Service;
+
+@Service
+@Primary
+public class UpiPaymentService implements PaymentService {
+    @Override
+    public void pay(double amount) {
+        System.out.println("Paid " + amount + " using UPI.");
+    }
+}
+1️⃣ Using @Primary
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+public class PrimaryExampleController {
+
+    @Autowired
+    private PaymentService paymentService;  // No @Qualifier used
+
+    @GetMapping("/payPrimary")
+    public String payUsingPrimary() {
+        paymentService.pay(500.0);
+        return "Payment done with Primary Bean";
+    }
+}
+👉 Output (because UpiPaymentService is @Primary):
+
+Paid 500.0 using UPI.
+2️⃣ Using @Qualifier
+Now, let’s say you don’t always want UPI, sometimes you want Credit Card explicitly.
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+public class QualifierExampleController {
+
+    @Autowired
+    @Qualifier("creditCardPaymentService")   // 👈 Bean name = class name with small first letter
+    private PaymentService paymentService;
+
+    @GetMapping("/payQualifier")
+    public String payUsingQualifier() {
+        paymentService.pay(1000.0);
+        return "Payment done with Qualifier Bean";
+    }
+}
+👉 Output:
+
+Paid 1000.0 using Credit Card.
+🏪 Real-Time Analogy
+@Primary → "Default Cash Counter" in a mall. If customer doesn’t specify, go there.
+
+@Qualifier → Customer says: "No, I want to pay specifically at the Credit Card counter."
+
+✅ Summary
+Feature	@Primary	@Qualifier
+Usage	Marks a default bean	Selects a specific bean
+When to use	If you mostly use one bean but don’t want errors when multiple exist	If you need different beans in different places
+Example output	“Paid using UPI” (default)	“Paid using Credit Card” (explicit)
+👉 Best Practice:
+
+Use @Primary for a commonly used default implementation.
+
+Use @Qualifier when you need specific control.
+
+Do you want me to also show you a combined example where we use both @Primary (for default) and @Qualifier (for override) in the same controller?
+
+
+
+No file chosenNo file chosen
+ChatGPT can make mistakes. Check important info. See Cookie Preferences.
+
