@@ -1,0 +1,116 @@
+Skip to content
+Chat history
+
+You said:
+What is Lazy initialisation in spring boot java please explain with simple real time example and where it is used?
+ChatGPT said:
+Great question 👍 Let’s go step by step.
+
+🔹 What is Lazy Initialization in Spring Boot?
+By default, Spring Boot eagerly creates all beans at application startup.
+
+This means when you start your app, Spring will create all objects (beans) immediately.
+
+This makes startup slower but ensures everything is ready before requests come in.
+
+Lazy Initialization means Spring will create the bean only when it is needed (first time requested), not during application startup.
+
+👉 Think of it like:
+
+Eager loading = Preparing all dishes in a restaurant kitchen as soon as it opens (even if no customer orders).
+
+Lazy loading = Preparing a dish only when a customer orders it.
+
+🔹 How to Enable Lazy Initialization?
+At application level (all beans lazy-loaded):
+Add in application.properties:
+
+spring.main.lazy-initialization=true
+At bean level:
+Use @Lazy annotation.
+
+@Component
+@Lazy
+public class HeavyBean {
+    public HeavyBean() {
+        System.out.println("HeavyBean is created!");
+    }
+}
+🔹 Simple Real-Time Example
+Imagine you have a Spring Boot web app with two services:
+
+PaymentService → frequently used
+
+ReportService → generates huge reports, rarely used (takes time & memory)
+
+Code:
+@Service
+public class PaymentService {
+    public PaymentService() {
+        System.out.println("PaymentService created!");
+    }
+    public void pay() {
+        System.out.println("Payment done!");
+    }
+}
+
+@Service
+@Lazy   // bean will be created only when used
+public class ReportService {
+    public ReportService() {
+        System.out.println("ReportService created!");
+    }
+    public void generateReport() {
+        System.out.println("Report generated!");
+    }
+}
+Main Application:
+@SpringBootApplication
+public class DemoApp implements CommandLineRunner {
+
+    private final PaymentService paymentService;
+    private final ReportService reportService;
+
+    public DemoApp(PaymentService paymentService, ReportService reportService) {
+        this.paymentService = paymentService;
+        this.reportService = reportService;
+    }
+
+    @Override
+    public void run(String... args) {
+        paymentService.pay();  // uses PaymentService
+        // reportService.generateReport(); // comment/uncomment to test
+    }
+
+    public static void main(String[] args) {
+        SpringApplication.run(DemoApp.class, args);
+    }
+}
+🔹 Output (if we don’t call reportService.generateReport()):
+PaymentService created!
+Payment done!
+👉 Notice ReportService was NOT created because it was marked @Lazy and never used.
+
+If later you call reportService.generateReport(), then only it will be created.
+
+🔹 Where is Lazy Initialization Used?
+Improving startup time (only create beans when required).
+
+Memory optimization (heavy beans not created unnecessarily).
+
+Rarely used services (e.g., report generation, backup services, debug tools).
+
+Microservices (start quickly, load only what’s needed).
+
+✅ In short:
+Lazy Initialization in Spring Boot means creating beans only when needed instead of at startup.
+It is useful when some beans are rarely used, heavy, or optional, so you don’t waste time/memory loading them at startup.
+
+Would you like me to also show you how lazy init works with REST API endpoints in Spring Boot (so you can see it in a real web app use case)?
+
+
+
+
+No file chosenNo file chosen
+ChatGPT can make mistakes. Check important info. See Cookie Preferences.
+
